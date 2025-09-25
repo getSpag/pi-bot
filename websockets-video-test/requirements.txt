@@ -1,0 +1,7 @@
+microdot
+RPi.GPIO
+websockets
+asyncio
+opencv-python
+aiohttp
+depthai
