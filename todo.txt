@@ -1,0 +1,25 @@
+
+python-roomba-working-AI-from-node-adapted
+=========================================
+    the roomba interface
+
+
+websockets-video-test
+=====================
+    the websockets for LED slider and video (python main.py)
+    the frontend that connects to the websocket (led-slider-and-stream)
+
+------------------
+
+========
+= TODO =
+========
+* Merge the two: test putting a button on the frontend app that will make it drive forward
+* Flesh out: Full four loco controls
+
+
+
+first write teh async function in python
+and make a new websocket
+
+then get the button on frontend to connect to that new websocket

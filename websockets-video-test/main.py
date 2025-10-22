@@ -104,10 +104,13 @@ async def video_streamer():
 
 # ---------- Main ----------
 async def main():
+    
     # Start video streamer task
-    streamer_task = asyncio.create_task(video_streamer())
+    # Needs to run independently of clients connecting
+    streamer_task = asyncio.create_task(video_streamer()) # should this happen for the led_slider too?
     
     # Start WebSocket servers (no router needed)
+    # Whenever a client connects to these ports, these functions are called
     led_server = websockets.serve(led_handler, "0.0.0.0", 5000)
     video_server = websockets.serve(video_client_handler, "0.0.0.0", 5001)
     
