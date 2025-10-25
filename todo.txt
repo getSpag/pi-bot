@@ -14,12 +14,10 @@ websockets-video-test
 ========
 = TODO =
 ========
-* Merge the two: test putting a button on the frontend app that will make it drive forward
-* Flesh out: Full four loco controls
 
+There is a parallel function
+and a globabl state variable
 
-
-first write teh async function in python
-and make a new websocket
-
-then get the button on frontend to connect to that new websocket
+Simplified to just serial function
+It drives under control now but won't stop
+keep tuning like this when charged

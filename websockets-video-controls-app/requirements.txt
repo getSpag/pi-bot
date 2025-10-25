@@ -5,3 +5,4 @@ asyncio
 opencv-python
 aiohttp
 depthai
+pyserial>=3.5,<4
