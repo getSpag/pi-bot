@@ -50,6 +50,10 @@ roomba_velocity = 0
 roomba_radius = 0
 roomba_drive_task: Optional[asyncio.Task] = None
 
+# Use asyncio events for better state sharing
+drive_event = asyncio.Event()
+drive_stop_event = asyncio.Event()
+
 def list_serial_ports() -> List[str]:
     ports = serial.tools.list_ports.comports()
     return [p.device for p in ports]
@@ -84,7 +88,8 @@ async def initialize_roomba() -> bool:
         await asyncio.sleep(0.1)
 
         # Safe mode (131). For Full mode, use 132
-        write_bytes(roomba_serial, [131])
+        #E full mode
+        write_bytes(roomba_serial, [132])
         await asyncio.sleep(0.1)
         
         print("Roomba initialized and in safe mode")
@@ -92,6 +97,44 @@ async def initialize_roomba() -> bool:
     except Exception as e:
         print(f"Failed to initialize Roomba: {e}")
         return False
+
+async def continuous_drive_loop():
+    """Continuous drive loop that waits for drive events"""
+    global roomba_velocity, roomba_radius, roomba_serial
+    
+    print("Continuous drive loop started")
+    
+    while True:
+        # Wait for drive event to be set
+        print("Drive loop: Waiting for drive event...")
+        await drive_event.wait()
+        print("Drive loop: Drive event received!")
+        
+        if roomba_serial:
+            # Convert to high/low bytes
+            vel_high = (roomba_velocity >> 8) & 0xFF
+            vel_low = roomba_velocity & 0xFF
+            rad_high = (roomba_radius >> 8) & 0xFF
+            rad_low = roomba_radius & 0xFF
+            
+            # Send drive command
+            write_bytes(roomba_serial, [137, vel_high, vel_low, rad_high, rad_low])
+            print(f"Roomba driving: velocity={roomba_velocity}, radius={roomba_radius}")
+            print(f"Sent bytes: [137, {vel_high}, {vel_low}, {rad_high}, {rad_low}]")
+            
+            # Wait for stop event or continue driving
+            try:
+                await asyncio.wait_for(drive_stop_event.wait(), timeout=0.1)
+                # If we get here, stop event was set
+                drive_stop_event.clear()
+                drive_event.clear()
+                print("Drive loop: Stop event received")
+            except asyncio.TimeoutError:
+                # Timeout means continue driving
+                pass
+        else:
+            print("Drive loop: roomba_serial is None")
+            drive_event.clear()
 
 
 # ---------- LED Control ----------
@@ -128,7 +171,7 @@ async def video_client_handler(ws):
 
 # ---------- Roomba Control ----------
 async def roomba_handler(ws):
-    global roomba_serial
+    global roomba_serial, roomba_driving, roomba_velocity, roomba_radius
     print("Roomba client connected")
     try:
         async for message in ws:
@@ -152,38 +195,36 @@ async def roomba_handler(ws):
                     # Clamp radius to valid range (-2000 to 2000 mm)
                     radius = max(-2000, min(2000, radius))
                     
-                    # Update global drive state
+                    # Update global drive state and trigger drive event
                     roomba_velocity = velocity
                     roomba_radius = radius
                     roomba_driving = True
                     
-                    # Convert to high/low bytes and send drive command
-                    vel_high = (velocity >> 8) & 0xFF
-                    vel_low = velocity & 0xFF
-                    rad_high = (radius >> 8) & 0xFF
-                    rad_low = radius & 0xFF
+                    # Clear any previous stop event and set drive event
+                    drive_stop_event.clear()
+                    drive_event.set()
                     
-                    write_bytes(roomba_serial, [137, vel_high, vel_low, rad_high, rad_low])
                     print(f"Roomba drive started: velocity={velocity}, radius={radius}")
+                    print(f"Drive event set: roomba_velocity={roomba_velocity}, roomba_radius={roomba_radius}")
                     await ws.send(json.dumps({"status": "success", "command": "drive", "velocity": velocity, "radius": radius}))
-                    
-                    # Keep sending drive commands until roomba_driving becomes False
-                    while roomba_driving:
-                        await asyncio.sleep(0.1)  # Wait 100ms
-                        if roomba_driving and roomba_serial:
-                            write_bytes(roomba_serial, [137, vel_high, vel_low, rad_high, rad_low])
                 
                 elif command_type == "stop":
                     # Stop command - stop the continuous drive
                     roomba_driving = False
+                    
+                    # Set stop event to stop the drive loop
+                    drive_stop_event.set()
+                    
                     write_bytes(roomba_serial, [137, 0, 0, 0, 0])  # Stop drive
-                    write_bytes(roomba_serial, [173])  # Stop command
-                    print("Roomba stopped")
+                    # write_bytes(roomba_serial, [173])  # Stop command
+                    print("Roomba stopped - sent stop commands")
+                    print("Sent bytes: [137, 0, 0, 0, 0] and [173]")
                     await ws.send(json.dumps({"status": "success", "command": "stop"}))
                 
                 elif command_type == "clean":
                     # Stop any ongoing drive and start cleaning cycle
                     roomba_driving = False
+                    drive_stop_event.set()
                     write_bytes(roomba_serial, [135])
                     print("Roomba cleaning started")
                     await ws.send(json.dumps({"status": "success", "command": "clean"}))
@@ -191,6 +232,7 @@ async def roomba_handler(ws):
                 elif command_type == "dock":
                     # Stop any ongoing drive and return to dock
                     roomba_driving = False
+                    drive_stop_event.set()
                     write_bytes(roomba_serial, [143])
                     print("Roomba returning to dock")
                     await ws.send(json.dumps({"status": "success", "command": "dock"}))
@@ -266,6 +308,9 @@ async def main():
     # Needs to run independently of clients connecting
     streamer_task = asyncio.create_task(video_streamer()) # should this happen for the led_slider too?
     
+    # Start continuous drive loop task
+    drive_loop_task = asyncio.create_task(continuous_drive_loop())
+    
     # Start WebSocket servers (no router needed)
     # Whenever a client connects to these ports, these functions are called
     led_server = websockets.serve(led_handler, "0.0.0.0", 5000)
@@ -279,7 +324,7 @@ async def main():
 
 
     # This will start all servers and the background tasks concurrently. 
-    await asyncio.gather(led_server, video_server, roomba_server, streamer_task)
+    await asyncio.gather(led_server, video_server, roomba_server, streamer_task, drive_loop_task)
 
     
     # async with websockets.serve(led_handler, "0.0.0.0", 5000):

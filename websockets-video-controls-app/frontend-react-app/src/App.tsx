@@ -310,9 +310,10 @@ export default function App() {
       </section>
 
       <section style={{ marginTop: "1.5rem" }}>
-        <h2 style={{ fontSize: "1.1rem" }}>Live Video</h2>
+        <h2 style={{ fontSize: "1.1rem" }}>Live Video with Roomba Controls</h2>
         <div
           style={{
+            position: "relative",
             width: 640,
             maxWidth: "100%",
             aspectRatio: "4 / 3",
@@ -327,6 +328,163 @@ export default function App() {
           ) : (
             <div style={{ color: "#aaa", padding: "1rem" }}>Waiting for frames...</div>
           )}
+          
+          {/* Roomba Controls Overlay */}
+          <div
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              background: "rgba(0, 0, 0, 0.7)",
+              padding: "10px",
+              borderRadius: "8px",
+              color: "white",
+              fontSize: "12px",
+            }}
+          >
+            <div style={{ marginBottom: "8px", fontWeight: "bold" }}>Roomba Control</div>
+            <div style={{ marginBottom: "4px" }}>Status: {roombaStatus}</div>
+            
+            {/* Mini directional controls */}
+            <div style={{ 
+              display: "grid", 
+              gridTemplateColumns: "1fr 1fr 1fr", 
+              gap: "4px", 
+              width: "120px",
+              marginTop: "8px"
+            }}>
+              <div></div>
+              <button
+                onClick={() => driveRoomba(100, 0)}
+                onMouseDown={() => driveRoomba(100, 0)}
+                onMouseUp={stopRoomba}
+                onMouseLeave={stopRoomba}
+                disabled={!roombaConnected}
+                style={{
+                  padding: "6px",
+                  fontSize: "12px",
+                  border: "1px solid #333",
+                  borderRadius: "4px",
+                  background: roombaConnected ? "#4CAF50" : "#ccc",
+                  color: "white",
+                  cursor: roombaConnected ? "pointer" : "not-allowed"
+                }}
+              >
+                ↑
+              </button>
+              <div></div>
+              
+              <button
+                onClick={() => driveRoomba(100, 1)}
+                onMouseDown={() => driveRoomba(100, 1)}
+                onMouseUp={stopRoomba}
+                onMouseLeave={stopRoomba}
+                disabled={!roombaConnected}
+                style={{
+                  padding: "6px",
+                  fontSize: "12px",
+                  border: "1px solid #333",
+                  borderRadius: "4px",
+                  background: roombaConnected ? "#4CAF50" : "#ccc",
+                  color: "white",
+                  cursor: roombaConnected ? "pointer" : "not-allowed"
+                }}
+              >
+                ←
+              </button>
+              
+              <button
+                onClick={stopRoomba}
+                disabled={!roombaConnected}
+                style={{
+                  padding: "6px",
+                  fontSize: "10px",
+                  border: "1px solid #333",
+                  borderRadius: "4px",
+                  background: roombaConnected ? "#f44336" : "#ccc",
+                  color: "white",
+                  cursor: roombaConnected ? "pointer" : "not-allowed"
+                }}
+              >
+                STOP
+              </button>
+              
+              <button
+                onClick={() => driveRoomba(100, -1)}
+                onMouseDown={() => driveRoomba(100, -1)}
+                onMouseUp={stopRoomba}
+                onMouseLeave={stopRoomba}
+                disabled={!roombaConnected}
+                style={{
+                  padding: "6px",
+                  fontSize: "12px",
+                  border: "1px solid #333",
+                  borderRadius: "4px",
+                  background: roombaConnected ? "#4CAF50" : "#ccc",
+                  color: "white",
+                  cursor: roombaConnected ? "pointer" : "not-allowed"
+                }}
+              >
+                →
+              </button>
+              
+              <div></div>
+              <button
+                onClick={() => driveRoomba(-100, 0)}
+                onMouseDown={() => driveRoomba(-100, 0)}
+                onMouseUp={stopRoomba}
+                onMouseLeave={stopRoomba}
+                disabled={!roombaConnected}
+                style={{
+                  padding: "6px",
+                  fontSize: "12px",
+                  border: "1px solid #333",
+                  borderRadius: "4px",
+                  background: roombaConnected ? "#4CAF50" : "#ccc",
+                  color: "white",
+                  cursor: roombaConnected ? "pointer" : "not-allowed"
+                }}
+              >
+                ↓
+              </button>
+              <div></div>
+            </div>
+
+            {/* Mini command buttons */}
+            <div style={{ display: "flex", gap: "4px", marginTop: "8px" }}>
+              <button
+                onClick={cleanRoomba}
+                disabled={!roombaConnected}
+                style={{
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  border: "1px solid #333",
+                  borderRadius: "4px",
+                  background: roombaConnected ? "#2196F3" : "#ccc",
+                  color: "white",
+                  cursor: roombaConnected ? "pointer" : "not-allowed"
+                }}
+              >
+                🧹
+              </button>
+              
+              <button
+                onClick={dockRoomba}
+                disabled={!roombaConnected}
+                style={{
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  border: "1px solid #333",
+                  borderRadius: "4px",
+                  background: roombaConnected ? "#FF9800" : "#ccc",
+                  color: "white",
+                  cursor: roombaConnected ? "pointer" : "not-allowed"
+                }}
+              >
+                🏠
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 

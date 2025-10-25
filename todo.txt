@@ -21,3 +21,25 @@ and a globabl state variable
 Simplified to just serial function
 It drives under control now but won't stop
 keep tuning like this when charged
+
+
+OCt 25 2025
+==========
+back to multi threaded that WON'T drive
+global variable access problem? yes
+
+    drive loop is setarted
+    drive command prints
+    don't see roomba_serial is None
+    However only ever see roomba_driving is false; never true
+
+new asyncio event-based driving system
+
+    drive events can be set
+
+
+
+the issue was the stop command lol. Make anew version with 
+the simpler concurrentcy implementation (no events, just global variables)
+jk they weren't working, tested debugging and the glboal vars weren't being updated
+

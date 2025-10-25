@@ -52,6 +52,13 @@ def main() -> None:
 
         # Drive command (137) with velocity and radius
         # Matches Node example: [137, 0, 100, 0, 0]
+
+        write_bytes(ser, [137, 255, 156, 0, 0])
+        time.sleep(1)
+
+        write_bytes(ser, [137, 0, 0, 0, 0])
+        time.sleep(0.3)
+
         write_bytes(ser, [137, 0, 100, 0, 0])
 
         # Run for 2 seconds
