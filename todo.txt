@@ -43,3 +43,9 @@ the issue was the stop command lol. Make anew version with
 the simpler concurrentcy implementation (no events, just global variables)
 jk they weren't working, tested debugging and the glboal vars weren't being updated
 
+========
+= NEXT =
+========
+
+cleaning button
+speed control
