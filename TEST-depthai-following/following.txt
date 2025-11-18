@@ -1,0 +1,26 @@
+INTRO
+
+    for this folder just use the same environment as in websocket-video-controls-app (should be default anyways)
+
+
+TODO
+    Look into depthai examples (in your home directory)
+
+==
+what neural network model are you using? Depthai is a platform for running various AI models on OAK devices
+
+>> neural netowrk to identify dog
+
+    A Convolutional Neural Network (CNN) is used to identify dogs, often with the help of transfer learning to achieve high accuracy. 
+    CNNs process images through layers that extract features, like edges and shapes, and then classify the image based on these features. 
+    To build one, you can use pre-trained models like ResNet or InceptionV3 and fine-tune them on a dog breed dataset, which significantly 
+    improves performance compared to training from scratch. 
+
+
+----
+
+gotta pipe the frames with XLinkk
+or just use the webserver again
+
+---
+
