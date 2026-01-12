@@ -24,3 +24,10 @@ or just use the webserver again
 
 ---
 
+
+
+Jan 11/26
+
+identify -> get it in center frame -> apply gas -> repeat...
+
+oracle web server so that anybody can login
