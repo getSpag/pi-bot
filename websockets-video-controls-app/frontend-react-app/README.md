@@ -4,6 +4,7 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 
 NPM RUN DEV idiot
+192.168.2.252:5173
 
 
 

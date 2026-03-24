@@ -11,3 +11,16 @@ led-slider-and-stream : react app that connects to the websockets
 
  Use the python serial interface you just built in a newly fused project!!!!
 
+ ----
+
+frontend-react-app
+npm run dev 
+
+in another shell
+use venv 
+    source /home/eric/pi-bot/websockets-video-controls-app/environment/bin/activate
+
+then run main_websockets.py
+
+
+
